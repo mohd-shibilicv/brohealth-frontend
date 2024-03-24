@@ -7,10 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 node_modules
+jspm_packages
+
+# Distribution directories
 dist
 dist-ssr
-*.local
+
+# Environment-specific files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +35,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Vite specific
+.vite
