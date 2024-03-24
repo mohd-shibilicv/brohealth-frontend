@@ -1,0 +1,8 @@
+#header-nav a.active {
+    color: #000000c7;
+    font-weight: bold;
+}
+
+#activeBarChart button.active {
+    background-color: #000;
+}
