@@ -29,6 +29,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const DashboardProfile = () => {
   const token = useSelector((state) => state.auth.token);
   const account = useSelector((state) => state.auth.account);
+  const info = useSelector((state) => state.auth.info);
   const [open, setOpen] = useState(false);
   const [openUpdateForm, setopenUpdateForm] = useState(false);
   const [email, setEmail] = useState(account.email);
@@ -207,23 +208,23 @@ const DashboardProfile = () => {
               <h2 className="text-xl font-semibold">Additional Info</h2>
               <div>
                 <p>
-                  medical_history: <span>{account?.medical_history}</span>
+                  medical_history: <span>{info?.medical_history}</span>
                 </p>
                 <p>
-                  prescription: <span>{account?.prescription}</span>
+                  prescription: <span>{info?.prescription}</span>
                 </p>
                 <p>
-                  preferred_timezone: <span>{account?.preferred_timezone}</span>
+                  preferred_timezone: <span>{info?.preferred_timezone}</span>
                 </p>
                 <p>
-                  preferred_language: <span>{account?.preferred_language}</span>
+                  preferred_language: <span>{info?.preferred_language}</span>
                 </p>
                 <p>
-                  emergency_contact: <span>{account?.emergency_contact}</span>
+                  emergency_contact: <span>{info?.emergency_contact}</span>
                 </p>
                 <p>
                   is_verified:{" "}
-                  <span>{account?.is_verified ? "True" : "False"}</span>
+                  <span>{info?.is_verified ? "True" : "False"}</span>
                 </p>
               </div>
             </div>

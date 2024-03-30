@@ -29,6 +29,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const DashboardProfile = () => {
   const token = useSelector((state) => state.auth.token);
   const account = useSelector((state) => state.auth.account);
+  const info = useSelector((state) => state.auth.info);
   const [open, setOpen] = useState(false);
   const [openUpdateForm, setopenUpdateForm] = useState(false);
   const [email, setEmail] = useState(account.email);
