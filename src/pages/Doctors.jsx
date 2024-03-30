@@ -126,7 +126,7 @@ const FilterForm = () => {
 };
 
 const DoctorCard = ({ doctor }) => {
-  const fullProfilePictureUrl = `${import.meta.env.VITE_APP_API_BASE_URL}${
+  const fullProfilePictureUrl = `${
     doctor.user.profile_picture
   }`;
 

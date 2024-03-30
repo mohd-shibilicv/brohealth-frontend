@@ -117,7 +117,7 @@ const Navbar = () => {
                       >
                         <Avatar
                           alt={auth.account.first_name}
-                          src={`${import.meta.env.VITE_APP_API_BASE_URL}${
+                          src={`${
                             auth.account.profile_picture
                           }`}
                         />
@@ -206,7 +206,7 @@ const Navbar = () => {
                   >
                     <Avatar
                       alt={auth.account.first_name}
-                      src={`${import.meta.env.VITE_APP_API_BASE_URL}${
+                      src={`${
                         auth.account.profile_picture
                       }`}
                     />
