@@ -181,7 +181,7 @@ const DashboardProfile = () => {
         <>
           <ToastContainer />
           <div className="w-full h-full flex justify-center text-center items-center">
-            <img
+            <Avatar
               src={`${
                 account.profile_picture
               }`}

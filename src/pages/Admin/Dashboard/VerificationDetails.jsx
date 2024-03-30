@@ -29,6 +29,7 @@ const VerificationDetails = () => {
             },
           }
         );
+        console.log(response.data);
         setData(response.data);
       } catch (error) {
         setError("Failed to load verification details.");
@@ -52,7 +53,7 @@ const VerificationDetails = () => {
           },
         }
       );
-      if (response.status === 200 || response.status === 204 ) {
+      if (response.status === 200 || response.status === 204) {
         setLoading(false);
         toast.success("Doctor Verification Approved!", {
           style: {
@@ -140,17 +141,18 @@ const VerificationDetails = () => {
   }
 
   if (error) {
-    return;
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "500px",
-      }}
-    >
-      <Typography variant="h6">{error}</Typography>
-    </Box>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "500px",
+        }}
+      >
+        <Typography variant="h6">{error}</Typography>
+      </Box>
+    );
   }
 
   return (
@@ -192,7 +194,7 @@ const VerificationDetails = () => {
                 <div className="flex relative gap-2">
                   {data.certificates.map((certificate) => (
                     <Box flex key={certificate.id}>
-                      {certificate.file.endsWith(".jpg") && (
+                      {certificate.type === "image" && (
                         <img
                           src={certificate.file}
                           alt={`Certificate ${certificate.id}`}
@@ -211,7 +213,7 @@ const VerificationDetails = () => {
                     className="flex flex-col relative w-full"
                     key={certificate.id}
                   >
-                    {certificate.file.endsWith(".pdf") && (
+                    {certificate.type === "pdf" && (
                       <PDFViewer file={certificate.file} key={certificate.id} />
                     )}
                   </div>
@@ -244,7 +246,12 @@ const VerificationDetails = () => {
                 )}
               </Button>
               {!loading && (
-                <Button fullWidth variant="outlined" color="error" onClick={rejectVerification}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  color="error"
+                  onClick={rejectVerification}
+                >
                   {loading ? (
                     <>
                       <div
