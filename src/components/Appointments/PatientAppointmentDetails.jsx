@@ -378,23 +378,6 @@ const PatientAppointmentDetails = () => {
                     )}
                   </Button>
                 )}
-                {appointmentDetails.paid && (
-                  <Link to="/chats" className="w-full">
-                    <Button
-                      fullWidth
-                      type="submit"
-                      variant="outlined"
-                      color="inherit"
-                      sx={{
-                        mt: 3,
-                        mb: 2,
-                      }}
-                    >
-                      Chat With Dr. {appointmentDetails.doctor.user.first_name}{" "}
-                      {appointmentDetails.doctor.user.last_name}
-                    </Button>
-                  </Link>
-                )}
                 <Button
                   fullWidth
                   type="submit"

@@ -23,7 +23,7 @@ function App() {
     <>
       <div className="App">
         <Routes>
-          <Route
+          {/* <Route
             path="/chats"
             element={
               <ProtectedRoute>
@@ -38,7 +38,7 @@ function App() {
                 <ChatSection />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="consultation/:roomId"
             element={

@@ -200,19 +200,6 @@ const DoctorAppointmentDetails = () => {
             </Grid>
             {appointment.paid && appointment.status === "confirmed" && (
               <Grid item xs={12}>
-                <Link to="/chats">
-                  <Button
-                    fullWidth
-                    color="success"
-                    variant="outlined"
-                    sx={{
-                      mb: 2,
-                    }}
-                  >
-                    Chat with {appointment.patient.user.first_name}{" "}
-                    {appointment.patient.user.last_name}
-                  </Button>
-                </Link>
                 <Button
                   fullWidth
                   color="inherit"
