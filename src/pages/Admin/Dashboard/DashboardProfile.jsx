@@ -182,7 +182,7 @@ const DashboardProfile = () => {
           <ToastContainer />
           <div className="w-full h-full flex justify-center text-center items-center">
             <img
-              src={`${import.meta.env.VITE_APP_API_BASE_URL}/${
+              src={`${import.meta.env.VITE_APP_API_BASE_URL}${
                 account.profile_picture
               }`}
               alt="Profile Picture"
