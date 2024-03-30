@@ -214,7 +214,7 @@ const PatientNotifications = () => {
   };
 
   // Regular expression to detect links
-  const urlRegex = /(http?:\/\/[^\s]+)/g;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
 
   // Function to replace links with <a> tags
   const replaceLinks = (text) => {
