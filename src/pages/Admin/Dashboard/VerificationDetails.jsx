@@ -29,7 +29,6 @@ const VerificationDetails = () => {
             },
           }
         );
-        console.log(response.data);
         setData(response.data);
       } catch (error) {
         setError("Failed to load verification details.");

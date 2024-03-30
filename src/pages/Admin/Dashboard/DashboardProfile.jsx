@@ -16,9 +16,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import MenuItem from "@mui/material/MenuItem";
 import { Grid, Avatar } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -32,40 +29,21 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const DashboardProfile = () => {
   const token = useSelector((state) => state.auth.token);
   const account = useSelector((state) => state.auth.account);
-  const info = useSelector((state) => state.auth.info);
-  const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [openUpdateForm, setopenUpdateForm] = useState(false);
   const [email, setEmail] = useState(account.email);
   const [firstName, setFirstName] = useState(account.first_name);
   const [lastName, setLastName] = useState(account.last_name);
-  const [dateOfBirth, setDateOfBirth] = useState(account.date_of_birth);
-  const [gender, setGender] = useState("");
+  const [age, setAge] = useState(account.age);
+  const [gender, setGender] = useState(account.gender);
   const [address, setAddress] = useState(account.address);
   const [mobileNumber, setMobileNumber] = useState(account.mobile_number);
-  const [isVerified, setIsVerified] = useState(info?.is_verified);
-  const [profilePicture, setProfilePicture] = useState(
-    account.profile_picture
-  );
+
+  const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const genders = [
-    {
-      value: "Male",
-      label: "Male",
-    },
-    {
-      value: "Female",
-      label: "Female",
-    },
-    {
-      value: "Other",
-      label: "Other",
-    },
-  ];
 
   const handleClickOpenAndCloseDialog = () => {
     setOpen(!open);
@@ -128,28 +106,34 @@ const DashboardProfile = () => {
   const handleUpdateFormSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      user: user,
-      spacialization: specialization,
-      years_of_experience: years_of_experience,
-      preferred_timezone: education,
-      preferred_language: clinic_address,
-      emergency_contact: clinic_phone_number,
-      is_verified: isVerified,
-    };
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("role", account.role);
+    formData.append("first_name", firstName);
+    formData.append("last_name", lastName);
+    formData.append("age", age);
+    formData.append("gender", gender);
+    formData.append("address", address);
+    formData.append("mobile_number", mobileNumber);
+    if (profilePicture) {
+      formData.append("profile_picture", profilePicture);
+    }
+
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_APP_API_URL}/patient/${account.id}/`,
-        data,
+        `${import.meta.env.VITE_APP_API_URL}/user/${account.id}/`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
       if (response.status === 200) {
         dispatch(authSlice.actions.updateUserInfo(response.data));
+        dispatch(authSlice.actions.setAccount(response.data));
         toast.success("Profile updated successfully!", {
           style: {
             background: "#000",
@@ -325,17 +309,19 @@ const DashboardProfile = () => {
                 onChange={(e) => setLastName(e.target.value)}
                 sx={{ mb: 2 }}
               />
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Date of Birth"
-                  format="YYYY-MM-DD"
-                  name="date-of-birth"
-                  views={["year", "month", "day"]}
-                  className="w-full mt-2"
-                  disableFuture
-                  sx={{ mb: 2 }}
-                />
-              </LocalizationProvider>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="age"
+                name="age"
+                label="Age"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                sx={{ mb: 2 }}
+              />
               <TextField
                 id="outlined-select-gender"
                 select
@@ -345,11 +331,9 @@ const DashboardProfile = () => {
                 onChange={(e) => setGender(e.target.value)}
                 sx={{ mb: 2 }}
               >
-                {genders.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
               </TextField>
               <TextField
                 id="outlined-multiline-static"

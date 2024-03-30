@@ -16,9 +16,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import MenuItem from "@mui/material/MenuItem";
 import { Grid, Avatar } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -32,50 +29,21 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const DashboardProfile = () => {
   const token = useSelector((state) => state.auth.token);
   const account = useSelector((state) => state.auth.account);
-  const user = useSelector((state) => state.auth.user);
   const [open, setOpen] = useState(false);
   const [openUpdateForm, setopenUpdateForm] = useState(false);
   const [email, setEmail] = useState(account.email);
   const [firstName, setFirstName] = useState(account.first_name);
   const [lastName, setLastName] = useState(account.last_name);
-  const [dateOfBirth, setDateOfBirth] = useState(account.date_of_birth);
+  const [age, setAge] = useState(account.age);
   const [gender, setGender] = useState(account.gender);
   const [address, setAddress] = useState(account.address);
   const [mobileNumber, setMobileNumber] = useState(account.mobile_number);
-  const [medicalHistory, setMedicalHistory] = useState(account.medical_history);
-  const [prescription, setPrescription] = useState(account.prescription);
-  const [preferredTimezone, setPreferredTimezone] = useState(
-    account.preferred_timezone
-  );
-  const [preferredLanguage, setPreferredLanguage] = useState(
-    account.preferred_language
-  );
-  const [emergencyContact, setEmergencyContact] = useState(
-    account.emergency_contact
-  );
-  const [isVerified, setIsVerified] = useState(account.is_verified);
-  const [profilePicture, setProfilePicture] = useState(
-    account.profile_picture
-  );
+
+  const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const genders = [
-    {
-      value: "Male",
-      label: "Male",
-    },
-    {
-      value: "Female",
-      label: "Female",
-    },
-    {
-      value: "Other",
-      label: "Other",
-    },
-  ];
 
   const handleClickOpenAndCloseDialog = () => {
     setOpen(!open);
@@ -100,7 +68,6 @@ const DashboardProfile = () => {
           },
         }
       );
-
       if (response.status === 200) {
         toast.warn("Account Deactivated!", {
           style: {
@@ -138,28 +105,34 @@ const DashboardProfile = () => {
   const handleUpdateFormSubmit = async (e) => {
     e.preventDefault();
 
-    const data = {
-      user: user,
-      medical_history: medicalHistory,
-      prescription: prescription,
-      preferred_timezone: preferredTimezone,
-      preferred_language: preferredLanguage,
-      emergency_contact: emergencyContact,
-      is_verified: isVerified,
-    };
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("role", account.role);
+    formData.append("first_name", firstName);
+    formData.append("last_name", lastName);
+    formData.append("age", age);
+    formData.append("gender", gender);
+    formData.append("address", address);
+    formData.append("mobile_number", mobileNumber);
+    if (profilePicture) {
+      formData.append("profile_picture", profilePicture);
+    }
+
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_APP_API_URL}/patient/${account.id}/`,
-        data,
+        `${import.meta.env.VITE_APP_API_URL}/user/${account.id}/`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
       if (response.status === 200) {
         dispatch(authSlice.actions.updateUserInfo(response.data));
+        dispatch(authSlice.actions.setAccount(response.data));
         toast.success("Profile updated successfully!", {
           style: {
             background: "#000",
@@ -192,9 +165,7 @@ const DashboardProfile = () => {
           <ToastContainer />
           <div className="w-full h-full flex justify-center text-center items-center">
             <Avatar
-              src={`${
-                account.profile_picture
-              }`}
+              src={`${account.profile_picture}`}
               alt="Profile Picture"
               className="h-32 w-32 rounded-xl"
             />
@@ -213,7 +184,7 @@ const DashboardProfile = () => {
                   Last Name: <span>{account?.last_name}</span>
                 </p>
                 <p>
-                  Date of Birth: <span>{account?.date_of_birth}</span>
+                  Age: <span>{account?.age}</span>
                 </p>
                 <p>
                   gender: <span>{account?.gender}</span>
@@ -228,8 +199,7 @@ const DashboardProfile = () => {
                   Member Since: <span>{account?.date_joined}</span>
                 </p>
                 <p>
-                  Active:{" "}
-                  <span>{account?.is_active ? "True" : "False"}</span>
+                  Active: <span>{account?.is_active ? "True" : "False"}</span>
                 </p>
               </div>
             </div>
@@ -350,21 +320,19 @@ const DashboardProfile = () => {
                 onChange={(e) => setLastName(e.target.value)}
                 sx={{ mb: 2 }}
               />
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Date of Birth"
-                  format="YYYY-MM-DD"
-                  name="date-of-birth"
-                  views={["year", "month", "day"]}
-                  className="w-full mt-2"
-                  disableFuture
-                  value={dateOfBirth}
-                  onChange={(newValue) => {
-                    setDateOfBirth(newValue);
-                  }}
-                  sx={{ mb: 2 }}
-                />
-              </LocalizationProvider>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="age"
+                name="age"
+                label="Age"
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                sx={{ mb: 2 }}
+              />
               <TextField
                 id="outlined-select-gender"
                 select
@@ -374,11 +342,9 @@ const DashboardProfile = () => {
                 onChange={(e) => setGender(e.target.value)}
                 sx={{ mb: 2 }}
               >
-                {genders.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+                <MenuItem value="other">Other</MenuItem>
               </TextField>
               <TextField
                 id="outlined-multiline-static"

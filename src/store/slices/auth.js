@@ -34,5 +34,5 @@ const authSlice = createSlice({
 });
 
 export const accountId = (state) => state.auth.account.id;
-
+export const { setAuthTokens, setAccount, setInfo, updateUserInfo, logout } = authSlice.actions;
 export default authSlice;
