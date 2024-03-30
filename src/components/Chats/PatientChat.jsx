@@ -16,12 +16,8 @@ const PatientChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const token = useSelector((state) => state.auth.token);
-  const websocket_url =
-    window.protocol === "https"
-      ? import.meta.env.VITE_APP_API_WEB_SOCKET_SECURE_BASE_URL
-      : import.meta.env.VITE_APP_API_WEB_SOCKET_BASE_URL;
 
-  const { client } = useWebSocket(`${websocket_url}/ws/chat/${roomId}`, token);
+  const { client } = useWebSocket(`${import.meta.env.VITE_APP_API_WEB_SOCKET_SECURE_BASE_URL}/ws/chat/${roomId}`, token);
 
   useEffect(() => {
     if (client) {
