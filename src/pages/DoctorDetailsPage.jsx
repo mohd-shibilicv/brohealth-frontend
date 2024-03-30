@@ -45,7 +45,7 @@ const DoctorDetailsPage = () => {
                 <>
                   <div>
                     <img
-                      src={`${import.meta.env.VITE_APP_API_BASE_URL}${
+                      src={`${
                         doctor.user.profile_picture
                       }`}
                       alt={`${doctor.user.first_name} ${doctor.user.last_name}`}
