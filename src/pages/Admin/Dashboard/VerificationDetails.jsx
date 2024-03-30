@@ -206,20 +206,6 @@ const VerificationDetails = () => {
                 </div>
               </div>
             </div>
-            <div className="px-3 py-4">
-              <div className="w-full flex flex-col items-start justify-center rounded-2xl bg-white bg-clip-border px-3 py-4 shadow-3xl shadow-shadow-500">
-                {data.certificates.map((certificate) => (
-                  <div
-                    className="flex flex-col relative w-full"
-                    key={certificate.id}
-                  >
-                    {certificate.type === "pdf" && (
-                      <PDFViewer file={certificate.file} key={certificate.id} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
         <div className="mx-auto flex gap-3 justify-center items-center w-[500px]">
