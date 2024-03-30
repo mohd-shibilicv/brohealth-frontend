@@ -21,6 +21,7 @@ import { Grid, Avatar } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { showSimpleToast } from "../../../utils/Toast.jsx";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -135,15 +136,7 @@ const DashboardProfile = () => {
       if (response.status === 200) {
         dispatch(authSlice.actions.updateUserInfo(response.data));
         dispatch(authSlice.actions.setAccount(response.data));
-        toast.success("Profile updated successfully!", {
-          style: {
-            background: "#000",
-            color: "#fff",
-          },
-          position: "bottom-right",
-          pauseOnHover: true,
-          draggable: true,
-        });
+        showSimpleToast("Profile updated successfully!");
         handleUpdateFormClose();
       }
     } catch (error) {
