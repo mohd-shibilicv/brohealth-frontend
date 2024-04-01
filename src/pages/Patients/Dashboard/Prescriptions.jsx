@@ -243,13 +243,6 @@ const Prescriptions = () => {
       doc.text(`Additional Instructions: ${selectedPrescription.additional_instructions}`, 20, 80);
     }
 
-    if (selectedPrescription.prescription_image) {
-      const imgProps = doc.getImageProperties(selectedPrescription.prescription_image);
-      const pdfWidth = doc.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      doc.addImage(selectedPrescription.prescription_image, "JPG", 20, 90, pdfWidth - 40, pdfHeight);
-    }
-
     // Save the PDF
     doc.save("prescription.pdf");
     setLoading(false);
