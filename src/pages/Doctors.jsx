@@ -46,7 +46,7 @@ const Doctors = () => {
 
       <div className="flex justify-between items-center my-10">
         {/* Filter Button */}
-        <Button
+        {/* <Button
           variant="outlined"
           color="inherit"
           startIcon={<FilterListIcon />}
@@ -54,9 +54,9 @@ const Doctors = () => {
           className="mr-4 mb-4 bg-white border-black hover:bg-gray-200 text-black"
         >
           Filter
-        </Button>
+        </Button> */}
 
-        <div className="flex w-full justify-center items-center">
+        <div className="flex w-full items-center justify-center">
           <div className="flex gap-2 border border-black px-2 py-2 rounded-md">
             <SearchIcon />
             <input
@@ -90,7 +90,7 @@ const Doctors = () => {
       </div>
 
       {/* Filter Form (Show conditionally) */}
-      {showFilter && <FilterForm onApply={() => setShowFilter(false)} />}
+      {/* {showFilter && <FilterForm onApply={() => setShowFilter(false)} />} */}
 
       {/* Doctor Listing */}
       {doctors.length !== 0 ? (
@@ -122,7 +122,7 @@ const Doctors = () => {
 
 const FilterForm = () => {
   // Implement your filter form logic here
-  return <div className="bg-white rounded p-4 shadow-md">jdfkjghjdkj</div>;
+  return <div className="bg-white"></div>;
 };
 
 const DoctorCard = ({ doctor }) => {
