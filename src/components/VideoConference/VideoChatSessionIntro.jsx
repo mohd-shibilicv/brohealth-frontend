@@ -22,6 +22,7 @@ function randomID(len) {
 export default function VideoChatSessionIntro() {
   const [appointment, setAppointment] = useState([]);
   const { roomId } = useParams();
+  console.log(roomId);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const appointmentId = searchParams.get("appointmentId");
@@ -56,6 +57,21 @@ export default function VideoChatSessionIntro() {
     navigate(`/`);
   };
 
+  const validRoomIdRegex = /^[\w~!@#$%^&*()_+`=\-\[\]\\;',.\/<>?:"{|}]*$/;
+
+  const formatRoomId = (roomId) => {
+    const trimmedRoomId = roomId.trim();
+
+    const formattedRoomId = trimmedRoomId.replace(
+      /[^a-zA-Z0-9~!@#$%^&*()_+`=\-\[\]\\;',.\/<>?:"{|}]/g,
+      ""
+    );
+
+    return formattedRoomId;
+  };
+
+  const formattedRoomId = formatRoomId(roomId);
+
   const doctorMeeting = async (element) => {
     const appID = import.meta.env.VITE_APP_ZEGOCLOUD_APP_ID;
     const serverSecret = `${import.meta.env.VITE_APP_ZEGOCLOUD_SERVER_SECRET}`;
@@ -76,7 +92,7 @@ export default function VideoChatSessionIntro() {
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
           appID,
           token,
-          roomId,
+          formattedRoomId,
           userID,
           userName
         );
