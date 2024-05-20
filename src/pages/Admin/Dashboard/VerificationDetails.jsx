@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Box, Container, Typography, Button } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import PDFViewer from "../../../components/Admin/PDFViewer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

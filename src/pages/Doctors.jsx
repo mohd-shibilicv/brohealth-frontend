@@ -1,13 +1,17 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
 import Pagination from "@mui/material/Pagination";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import Box from "@mui/material/Box";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDoctors, setSearchTerm, setPage } from "../store/slices/doctorSlice";
+import { debounce } from "lodash";
+import {
+  fetchDoctors,
+  setSearchTerm,
+  setPage,
+} from "../store/slices/doctorSlice";
 
 const Doctors = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -25,8 +29,17 @@ const Doctors = () => {
     setShowFilter(!showFilter);
   };
 
+  const debouncedFetchDoctors = useCallback(
+    debounce((searchTerm) => {
+      dispatch(fetchDoctors({ page: 1, searchTerm }));
+    }, 300),
+    []
+  );
+
   const handleSearch = (e) => {
-    dispatch(setSearchTerm(e.target.value));
+    const newSearchTerm = e.target.value;
+    debouncedFetchDoctors(newSearchTerm);
+    dispatch(setSearchTerm(newSearchTerm));
   };
 
   const handleSortChange = (event) => {
@@ -70,7 +83,7 @@ const Doctors = () => {
         </div>
 
         {/* Sort By Button */}
-        <div className="hidden sm:flex justify-cemter items-center">
+        <div className="hidden sm:flex justify-center items-center">
           <form method="get" className="sorting-form flex gap-2 items-center">
             <div className="relative">
               <select
@@ -80,7 +93,7 @@ const Doctors = () => {
                 className="border border-black p-2 rounded-md min-w-[150px]"
               >
                 <option value="default">Default</option>
-                <option value="specialization">Specialzation</option>
+                <option value="specialization">Specialization</option>
                 <option value="fee">Fee</option>
                 <option value="expertise">Expertise</option>
               </select>
@@ -100,10 +113,26 @@ const Doctors = () => {
           ))}
         </div>
       ) : (
-        <div className="w-1/3 flex justify-center items-center bg-white border border-black rounded p-4 shadow-md">
-          <h2 className="font-semibold text-lg">
-            No Doctor found matching the query "{searchTerm}"
-          </h2>
+        <div className="h-full bg-white border border-black rounded p-4 shadow-md">
+          <div
+            className="flex justify-center flex-col gap-2 items-center doctor-card"
+          >
+            <h2 className="font-semibold text-lg">
+              No Doctors Found
+            </h2>
+          </div>
+          <Link
+            to={`/`}
+            className="flex justify-center items-center my-3 relative"
+          >
+            <Button
+              fullWidth
+              variant="outlined"
+              color="inherit"
+            >
+              Back
+            </Button>
+          </Link>
         </div>
       )}
 
@@ -126,9 +155,7 @@ const FilterForm = () => {
 };
 
 const DoctorCard = ({ doctor }) => {
-  const fullProfilePictureUrl = `${
-    doctor.user.profile_picture
-  }`;
+  const fullProfilePictureUrl = `${doctor.user.profile_picture}`;
 
   return (
     <div className="h-full bg-white border border-black rounded p-4 shadow-md">

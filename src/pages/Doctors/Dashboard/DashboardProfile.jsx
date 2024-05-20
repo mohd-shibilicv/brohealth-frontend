@@ -2,49 +2,88 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
-import authSlice from "../../../store/slices/auth.js";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import MenuItem from "@mui/material/MenuItem";
-import { Grid, Avatar } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {
+  Box,
+  CircularProgress,
+  Button,
+  TextField,
+  Stack,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Slide,
+  MenuItem,
+  Grid,
+  Avatar,
+  Typography,
+  Container,
+} from "@mui/material";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  CloudUpload as CloudUploadIcon,
+} from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import authSlice from "../../../store/slices/auth.js";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const schema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Email is required"),
+  firstName: yup.string().required("First name is required"),
+  lastName: yup.string().required("Last name is required"),
+  age: yup
+    .number()
+    .required("Age is required")
+    .positive("Age must be a positive number")
+    .integer("Age must be an integer")
+    .max(120, "Age must be less than or equal to 120"),
+  gender: yup.string().required("Gender is required"),
+  address: yup.string().required("Address is required"),
+  mobileNumber: yup
+    .string()
+    .required("Mobile number is required")
+    .matches(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits"),
+});
+
 const DashboardProfile = () => {
   const token = useSelector((state) => state.auth.token);
   const account = useSelector((state) => state.auth.account);
-  const info = useSelector((state) => state.auth.info);
+  const info = useSelector((state) => state.doctors.doctors[0]);
+
   const [open, setOpen] = useState(false);
   const [openUpdateForm, setopenUpdateForm] = useState(false);
-  const [email, setEmail] = useState(account.email);
-  const [firstName, setFirstName] = useState(account.first_name);
-  const [lastName, setLastName] = useState(account.last_name);
-  const [age, setAge] = useState(account.age);
-  const [gender, setGender] = useState(account.gender);
-  const [address, setAddress] = useState(account.address);
-  const [mobileNumber, setMobileNumber] = useState(account.mobile_number);
-
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: account?.email,
+      firstName: account?.first_name,
+      lastName: account?.last_name,
+      age: account?.age,
+      gender: account?.gender,
+      address: account?.address,
+      mobileNumber: account?.mobile_number,
+    },
+  });
 
   const handleClickOpenAndCloseDialog = () => {
     setOpen(!open);
@@ -69,7 +108,6 @@ const DashboardProfile = () => {
           },
         }
       );
-
       if (response.status === 200) {
         toast.warn("Account Deactivated!", {
           style: {
@@ -104,18 +142,16 @@ const DashboardProfile = () => {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleUpdateFormSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("email", email);
+    formData.append("email", data.email);
     formData.append("role", account.role);
-    formData.append("first_name", firstName);
-    formData.append("last_name", lastName);
-    formData.append("age", age);
-    formData.append("gender", gender);
-    formData.append("address", address);
-    formData.append("mobile_number", mobileNumber);
+    formData.append("first_name", data.firstName);
+    formData.append("last_name", data.lastName);
+    formData.append("age", data.age);
+    formData.append("gender", data.gender);
+    formData.append("address", data.address);
+    formData.append("mobile_number", data.mobileNumber);
     if (profilePicture) {
       formData.append("profile_picture", profilePicture);
     }
@@ -161,270 +197,410 @@ const DashboardProfile = () => {
   };
 
   return (
-    <div className="w-full">
-      {account ? (
-        <>
-          <ToastContainer />
-          <div className="w-full h-full flex justify-center text-center items-center">
-            <Avatar
-              src={`${
-                account.profile_picture
-              }`}
-              alt="Profile Picture"
-              className="h-32 w-32 rounded-xl"
-            />
-          </div>
-          <div className="flex justify-evenly mt-10">
-            <div>
-              <h2 className="text-xl font-semibold">Personal Info</h2>
-              <div>
-                <p>
-                  Email: <span>{account.email}</span>
-                </p>
-                <p>
-                  First Name: <span>{account?.first_name}</span>
-                </p>
-                <p>
-                  Last Name: <span>{account?.last_name}</span>
-                </p>
-                <p>
-                  Date of Birth: <span>{account?.date_of_birth}</span>
-                </p>
-                <p>
-                  gender: <span>{account?.gender}</span>
-                </p>
-                <p>
-                  Address: <span>{account?.address}</span>
-                </p>
-                <p>
-                  Mobile Number: <span>{account?.mobile_number}</span>
-                </p>
-                <p>
-                  Member Since: <span>{account?.date_joined}</span>
-                </p>
-                <p>
-                  Active:{" "}
-                  <span>{account?.is_active ? "True" : "False"}</span>
-                </p>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold">Additional Info</h2>
-              <div>
-                <p>
-                  spacialization: <span>{info?.specialization}</span>
-                </p>
-                <p>
-                  years_of_experience: <span>{info?.years_of_experience}</span>
-                </p>
-                <p>
-                  education: <span>{info?.education}</span>
-                </p>
-                <p>
-                  clinic_address: <span>{info?.clinic_address}</span>
-                </p>
-                <p>
-                  clinic_phone_number: <span>{info?.clinic_phone_number}</span>
-                </p>
-                <p>
-                  clinic_website: <span>{info?.clinic_website}</span>
-                </p>
-                <p>
-                  is_approved:{" "}
-                  <span>{info?.is_approved ? "True" : "False"}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-center mt-10">
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={handleClickOpenAndCloseDialog}
-                startIcon={<DeleteIcon />}
-              >
-                Deactivate Account
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={handleUpdateFormClickOpen}
-                endIcon={<EditIcon />}
-              >
-                Update Details
-              </Button>
-            </Stack>
-          </div>
-          <Dialog
-            open={open}
-            TransitionComponent={Transition}
-            keepMounted
-            onClose={handleClickOpenAndCloseDialog}
-            aria-describedby="alert-dialog-slide-description"
-          >
-            <DialogTitle>{"Confirm Account Deactivate"}</DialogTitle>
-            <DialogContent>
-              <DialogContentText
-                color="default"
-                id="alert-dialog-slide-description"
-              >
-                Are you sure you want to deactivate your account?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClickOpenAndCloseDialog} color="inherit">
-                Cancel
-              </Button>
-              <Button onClick={handleDeactivateAccount} color="error">
-                Deactivate
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={openUpdateForm}
-            onClose={handleUpdateFormClose}
-            PaperProps={{
-              component: "form",
-              onSubmit: handleUpdateFormSubmit,
-            }}
-          >
-            <DialogTitle>Update</DialogTitle>
-            <DialogContent>
-              <DialogContentText></DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="email"
-                name="email"
-                label="Email Address"
-                type="email"
-                fullWidth
-                variant="outlined"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="firstname"
-                name="firstname"
-                label="First Name"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="lastname"
-                name="lastname"
-                label="Last Name"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="age"
-                name="age"
-                label="Age"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                id="outlined-select-gender"
-                select
-                label="Gender"
-                className="w-full mt-2"
-                value={gender || ""}
-                onChange={(e) => setGender(e.target.value)}
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
-              </TextField>
-              <TextField
-                id="outlined-multiline-static"
-                label="Address"
-                multiline
-                type="text"
-                name="address"
-                rows={3}
-                className="w-full"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                autoFocus
-                margin="dense"
-                id="mobile-number"
-                name="mobile-number"
-                label="Mobile Number"
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-              />
-              <Grid item xs={12}>
-                <input
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  id="raised-button-file"
-                  type="file"
-                  onChange={handleFileUpload}
+    <Container maxWidth="md">
+      <ToastContainer />
+      <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+        {account ? (
+          <>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sx={{ textAlign: "center" }}>
+                <Avatar
+                  src={`${account.profile_picture}`}
+                  alt="Profile Picture"
+                  sx={{ width: 128, height: 128, margin: "auto" }}
                 />
-                <label htmlFor="raised-button-file">
-                  <Button
-                    color="inherit"
-                    className="w-full border"
-                    variant="outlined"
-                    component="span"
-                    sx={{ mt: 2 }}
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    Upload Profile Picture
-                  </Button>
-                </label>
+                <Typography variant="h4" component="h1" sx={{ mt: 2, mb: 5 }}>
+                  {account.first_name} {account.last_name}
+                </Typography>
               </Grid>
-              {previewUrl && (
-                <Grid item xs={12} className="flex m-10 justify-center mx-auto">
-                  <Avatar
-                    alt="Profile Preview"
-                    src={previewUrl}
-                    sx={{ width: 100, height: 100, mt: 2 }}
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Email"
+                    value={account.email}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
                   />
                 </Grid>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleUpdateFormClose}>Cancel</Button>
-              <Button type="submit">Update</Button>
-            </DialogActions>
-          </Dialog>
-        </>
-      ) : (
-        <>
-          <div className="relative flex min-h-[500px] justify-center items-center">
-            <Box sx={{ display: "flex" }}>
-              <CircularProgress color="inherit" />
-            </Box>
-          </div>
-        </>
-      )}
-    </div>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="First Name"
+                    value={account.first_name}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Last Name"
+                    value={account.last_name}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Age"
+                    value={account.age}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Gender"
+                    value={account.gender}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Address"
+                    value={account.address}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Mobile Number"
+                    value={account.mobile_number}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Member Since"
+                    value={account.date_joined}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Active"
+                    value={account.is_active ? "True" : "False"}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Specialization"
+                    value={info?.specialization || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Years of Experience"
+                    value={info?.years_of_experience || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Education"
+                    value={info?.education || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Clinic Address"
+                    value={info?.clinic_address || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Clinic Phone Number"
+                    value={info?.clinic_phone_number || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Clinic Website"
+                    value={info?.clinic_website || ""}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    label="Approved"
+                    value={info?.is_approved ? "True" : "False"}
+                    fullWidth
+                    readOnly
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid item xs={12} sx={{ textAlign: "center", mt: 4 }}>
+                <Stack direction="row" spacing={2} justifyContent="center">
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleClickOpenAndCloseDialog}
+                    startIcon={<DeleteIcon />}
+                  >
+                    Deactivate Account
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handleUpdateFormClickOpen}
+                    endIcon={<EditIcon />}
+                  >
+                    Update Details
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+
+            <Dialog
+              open={open}
+              TransitionComponent={Transition}
+              keepMounted
+              onClose={handleClickOpenAndCloseDialog}
+              aria-describedby="alert-dialog-slide-description"
+            >
+              <DialogTitle>{"Confirm Account Deactivation"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-slide-description">
+                  Are you sure you want to deactivate your account?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClickOpenAndCloseDialog}>Cancel</Button>
+                <Button onClick={handleDeactivateAccount} color="error">
+                  Deactivate
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog
+              open={openUpdateForm}
+              onClose={handleUpdateFormClose}
+              PaperProps={{
+                component: "form",
+                onSubmit: handleSubmit(onSubmit),
+              }}
+            >
+              <DialogTitle>Update Profile</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Update your profile details below:
+                </DialogContentText>
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="email"
+                      label="Email Address"
+                      type="email"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.email}
+                      helperText={errors.email ? errors.email.message : ""}
+                    />
+                  )}
+                />
+                <Controller
+                  name="firstName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="firstName"
+                      label="First Name"
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.firstName}
+                      helperText={
+                        errors.firstName ? errors.firstName.message : ""
+                      }
+                    />
+                  )}
+                />
+                <Controller
+                  name="lastName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="lastName"
+                      label="Last Name"
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.lastName}
+                      helperText={
+                        errors.lastName ? errors.lastName.message : ""
+                      }
+                    />
+                  )}
+                />
+                <Controller
+                  name="age"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="age"
+                      label="Age"
+                      type="number"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.age}
+                      helperText={errors.age ? errors.age.message : ""}
+                    />
+                  )}
+                />
+                <Controller
+                  name="gender"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      margin="dense"
+                      id="gender"
+                      label="Gender"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.gender}
+                      helperText={errors.gender ? errors.gender.message : ""}
+                    >
+                      <MenuItem value="male">Male</MenuItem>
+                      <MenuItem value="female">Female</MenuItem>
+                      <MenuItem value="other">Other</MenuItem>
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  name="address"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="address"
+                      label="Address"
+                      multiline
+                      rows={3}
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.address}
+                      helperText={errors.address ? errors.address.message : ""}
+                    />
+                  )}
+                />
+                <Controller
+                  name="mobileNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      margin="dense"
+                      id="mobileNumber"
+                      label="Mobile Number"
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      error={!!errors.mobileNumber}
+                      helperText={
+                        errors.mobileNumber ? errors.mobileNumber.message : ""
+                      }
+                    />
+                  )}
+                />
+                <Grid item xs={12}>
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="raised-button-file"
+                    type="file"
+                    onChange={handleFileUpload}
+                  />
+                  <label htmlFor="raised-button-file">
+                    <Button
+                      color="inherit"
+                      className="w-full border"
+                      variant="outlined"
+                      component="span"
+                      sx={{ mt: 2 }}
+                      startIcon={<CloudUploadIcon />}
+                    >
+                      Upload Profile Picture
+                    </Button>
+                  </label>
+                </Grid>
+                {previewUrl && (
+                  <Grid
+                    item
+                    xs={12}
+                    className="flex m-10 justify-center mx-auto"
+                  >
+                    <Avatar
+                      alt="Profile Preview"
+                      src={previewUrl}
+                      sx={{ width: 100, height: 100, mt: 2 }}
+                    />
+                  </Grid>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleUpdateFormClose}>Cancel</Button>
+                <Button type="submit">Update</Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "500px",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+      </Box>
+    </Container>
   );
 };
 
