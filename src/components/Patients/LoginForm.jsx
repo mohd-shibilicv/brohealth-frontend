@@ -22,10 +22,13 @@ export default function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
 
     axios
-      .post(`${import.meta.env.VITE_APP_API_URL}/auth/login/`, { email, password })
+      .post(`${import.meta.env.VITE_APP_API_URL}/auth/login/`, {
+        email,
+        password,
+      })
       .then((res) => {
         dispatch(authSlice.actions.setAccount(res.data.user));
         dispatch(
@@ -34,19 +37,23 @@ export default function LoginForm() {
             refreshToken: res.data.refresh,
           })
         );
-        if (res.data.user.role === 'patient') {
+        if (res.data.user.role === "patient") {
           dispatch(authSlice.actions.setInfo(res.data.patient));
-        } else if (res.data.user.role === 'doctor') {
+        } else if (res.data.user.role === "doctor") {
           dispatch(authSlice.actions.setInfo(res.data.doctor));
-        } else if (res.data.user.role === 'admin') {
+        } else if (res.data.user.role === "admin") {
           dispatch(authSlice.actions.setInfo(res.data.admin));
         }
         setLoading(false);
         navigate("/");
       })
       .catch((err) => {
-        setLoading(false)
-        setError(err.response.data.detail ? err.response.data.detail.toString() : "Invalid Credentials" );
+        setLoading(false);
+        setError(
+          err.response.data.detail
+            ? err.response.data.detail.toString()
+            : "Invalid Credentials"
+        );
       });
   };
 
@@ -65,11 +72,19 @@ export default function LoginForm() {
           <Typography component="h1" variant="h4">
             Sign in
           </Typography>
+          <div className="mx-auto flex flex-col gap-2 bg-green-100 px-5 py-3 mt-2 rounded border border-green-500">
+            <h3 className="text-center text-lg border-b border-green-300">Test Credentials</h3>
+            <p>Patient Email: <span className="text-green-600 m-2 rounded-sm py-2 px-1">patient@brohealth.com</span></p>
+            <p>Patient Password: <span className="text-green-600 m-2 rounded-sm py-2 px-1">Plo90plo90p!</span></p>
+            <div className="border-b border-green-300"></div>
+            <p>Doctor Email: <span className="text-green-600 m-2 rounded-sm py-2 px-1">doctor@brohealth.com</span></p>
+            <p>Doctor Password: <span className="text-green-600 m-2 rounded-sm py-2 px-1">Plo90plo90p!</span></p>
+          </div>
           <Box
             component="form"
             onSubmit={handleSubmit}
             noValidate
-            sx={{ mt: 1, }}
+            sx={{ mt: 1 }}
             className="md:w-[500px]"
           >
             {error && (
@@ -119,7 +134,11 @@ export default function LoginForm() {
               }}
             >
               {loading ? (
-                <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-yellow-1000 rounded-full" role="status" aria-label="loading">
+                <div
+                  className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-yellow-1000 rounded-full"
+                  role="status"
+                  aria-label="loading"
+                >
                   <span className="sr-only">Loading...</span>
                 </div>
               ) : (
